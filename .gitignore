@@ -1,0 +1,8 @@
+*.bc
+*.s
+*.dylib
+lib/sysdefs
+bin/balance
+bin/httpGate
+bin/picolisp
+bin/ssl
