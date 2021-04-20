@@ -6,7 +6,7 @@ CC = clang
 PIL = ../pil  # pil
 ASM = opt -O3  # llvm-as
 MAIN = -rdynamic -lc -lm -ldl $(shell pkg-config --cflags --libs readline libffi)
-SHARED = -shared
+SHARED = -dynamiclib -Wl,-undefined,dynamic_lookup
 OS = $(shell uname)
 CPU = $(shell uname -m)
 
@@ -16,7 +16,9 @@ LIB = ../lib
 INC = lib/llvm.l vers.l defs.l glob.l dec.l
 SRC = main.l gc.l big.l sym.l io.l db.l apply.l flow.l subr.l
 
-all: $(LIB)/sysdefs $(BIN)/picolisp $(LIB)/ext.so $(LIB)/ht.so $(BIN)/balance $(BIN)/ssl $(BIN)/httpGate
+SSL = $(shell pkg-config --cflags --libs libssl libcrypto)
+
+all: $(LIB)/sysdefs $(BIN)/picolisp $(LIB)/ext.dylib $(LIB)/ht.dylib $(BIN)/balance $(BIN)/ssl $(BIN)/httpGate
 
 # System definitions
 $(LIB)/sysdefs: sysdefs.c
@@ -42,9 +44,9 @@ lib.bc: pico.h lib.c
 	$(CC) -O3 -w -c -D_OS='"$(OS)"' -D_CPU='"$(CPU)"' `pkg-config --cflags libffi readline` -emit-llvm lib.c
 
 # Extension libraries
-$(LIB)/ext.so: ext.bc
+$(LIB)/ext.dylib: ext.bc
 	llc ext.bc -relocation-model=pic -o ext.s
-	$(CC) ext.s -o $(LIB)/ext.so $(SHARED)
+	$(CC) ext.s -o $(LIB)/ext.dylib $(SHARED)
 
 ext.bc: ext.ll
 	$(ASM) -o ext.bc ext.ll
@@ -52,9 +54,9 @@ ext.bc: ext.ll
 ext.ll: $(INC) ext.l
 	$(PIL) lib/llvm.l ext.l -bye > ext.ll
 
-$(LIB)/ht.so: ht.bc
+$(LIB)/ht.dylib: ht.bc
 	llc ht.bc -relocation-model=pic -o ht.s
-	$(CC) ht.s -o $(LIB)/ht.so $(SHARED)
+	$(CC) ht.s -o $(LIB)/ht.dylib $(SHARED)
 
 ht.bc: ht.ll
 	$(ASM) -o ht.bc ht.ll
@@ -68,10 +70,10 @@ $(BIN)/balance: balance.c
 
 # Gate
 $(BIN)/ssl: ssl.c
-	$(CC) -O3 -w -o $(BIN)/ssl ssl.c -lssl -lcrypto
+	$(CC) -O3 -w -o $(BIN)/ssl ssl.c $(SSL)
 
 $(BIN)/httpGate: httpGate.c
-	$(CC) -O3 -w -o $(BIN)/httpGate httpGate.c -lssl -lcrypto
+	$(CC) -O3 -w -o $(BIN)/httpGate httpGate.c $(SSL)
 
 # Clean up
 clean:
