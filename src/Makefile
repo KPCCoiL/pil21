@@ -5,7 +5,7 @@
 CC = clang
 PIL = ../pil  # pil
 ASM = opt -O3  # llvm-as
-MAIN = -rdynamic -lc -lm -ldl -lreadline -lffi
+MAIN = -rdynamic -lc -lm -ldl $(shell pkg-config --cflags --libs readline libffi)
 SHARED = -shared
 OS = $(shell uname)
 CPU = $(shell uname -m)
@@ -39,7 +39,7 @@ base.ll: $(INC) $(SRC)
 	mv base.map $(LIB)/map
 
 lib.bc: pico.h lib.c
-	$(CC) -O3 -w -c -D_OS='"$(OS)"' -D_CPU='"$(CPU)"' `pkg-config --cflags libffi` -emit-llvm lib.c
+	$(CC) -O3 -w -c -D_OS='"$(OS)"' -D_CPU='"$(CPU)"' `pkg-config --cflags libffi readline` -emit-llvm lib.c
 
 # Extension libraries
 $(LIB)/ext.so: ext.bc
