@@ -5463,14 +5463,14 @@ $5:
   %11 = load i64, i64* @$PilLen
 ; # (set P 0)
   store i8 0, i8* %5
-; # (let (Len (strlen S) Q (b8 (+ N Len (+ 4 3 1)))) (if (strchr S (c...
+; # (let (Len (strlen S) Q (b8 (+ N Len (+ 4 6 1)))) (if (strchr S (c...
 ; # (strlen S)
   %12 = call i64 @strlen(i8* %4)
-; # (+ 4 3 1)
-; # (+ N Len (+ 4 3 1))
+; # (+ 4 6 1)
+; # (+ N Len (+ 4 6 1))
   %13 = add i64 %11, %12
-  %14 = add i64 %13, 8
-; # (b8 (+ N Len (+ 4 3 1)))
+  %14 = add i64 %13, 11
+; # (b8 (+ N Len (+ 4 6 1)))
   %15 = alloca i8, i64 %14
 ; # (if (strchr S (char "/")) (strcpy Q S) (when N (memcpy Q (val $Pi...
 ; # (strchr S (char "/"))
@@ -5514,8 +5514,8 @@ $8:
   %32 = phi i64 [%18, %$6], [%31, %$10] ; # Len
 ; # (ofs Q Len)
   %33 = getelementptr i8, i8* %15, i64 %32
-; # (strcpy (ofs Q Len) ($ ".so"))
-  %34 = call i8* @strcpy(i8* %33, i8* bitcast ([4 x i8]* @$24 to i8*))
+; # (strcpy (ofs Q Len) ($ ".dylib"))
+  %34 = call i8* @strcpy(i8* %33, i8* bitcast ([7 x i8]* @$24 to i8*))
 ; # (and (dlOpen Q) (dlsym @ (inc P)) (prog (set Sym (| (i64 @) 2)) Y...
 ; # (dlOpen Q)
   %35 = call i8* @dlOpen(i8* %15)
@@ -105925,7 +105925,7 @@ $27:
 @$27 = private constant [15 x i8] c"Open error: %s\00"
 @$26 = private constant [10 x i8] c"Undefined\00"
 @$25 = private constant [6 x i8] c"Div/0\00"
-@$24 = private constant [4 x i8] c".so\00"
+@$24 = private constant [7 x i8] c".dylib\00"
 @$23 = private constant [5 x i8] c"lib/\00"
 @$22 = private constant [21 x i8] c"Bad symbol namespace\00"
 @$21 = private constant [11 x i8] c"Can't fork\00"
